@@ -59,7 +59,16 @@ The example reduces the contrast using a factor of 0.75 and increases the bright
 
 ```bash
 ./ppa6-printImage.py -c 0.75 -b 1.5 B5:5B:13:08:F6:22 image.jpg
-``` 
+```
+
+###Disabling feeding
+The script feeds some extra paper after printing to ease cutting. This can be disabled using the `-nf` parameter.
+
+Example
+```bash
+
+./ppa6-printImage.py -nf B5:5B:13:08:F6:22 image.jpg
+```
 
 ## Status and future work
 
