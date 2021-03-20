@@ -9,6 +9,8 @@ So far, the Peripage A6 F622 can be only controlled using a proprietary app (iOS
 
 The script provided here was built based on an analysis of captured Bluetooth traffic between the printer and an Android device. The Peripage A6 uses the serial profile (BTSPP) and RFCOMM. 
 
+Essentially, the script takes an input images, scales it to the printers natvie X resolution of 384 pixels, and then sends it to the printer.
+
 ## Prerequisites
 
 - Python 3 and PIP
@@ -45,7 +47,7 @@ You can use all common raster image formats for printing (PNG, JPG, GIF...)
 
 *Example*
 ```bash
-/ppa6-printImage.py B5:5B:13:08:F6:22 image.jpg
+./ppa6-printImage.py B5:5B:13:08:F6:22 image.jpg
 ``` 
 
 ### Manipulating brightness and contrast for printing
@@ -56,12 +58,12 @@ of the image is adjusted. This can be done using the `-b` and `-b` parameters.
 The example reduces the contrast using a factor of 0.75 and increases the brightness using a factor of 1.5.
 
 ```bash
-/ppa6-printImage.py -c 0.75 -b 1.5 B5:5B:13:08:F6:22 image.jpg
+./ppa6-printImage.py -c 0.75 -b 1.5 B5:5B:13:08:F6:22 image.jpg
 ``` 
 
 ## Status and future work
 
-This script is a proof of concept. gThe goal was simply to make printing work. There are a lot of unknowns yet with regard to the actual printer communication.
+This script is a proof of concept. The goal was simply to make printing work. There are a lot of unknowns yet with regard to the actual printer communication. Help and PRs are welcome!
 
 Todo:
 - Printer scanning & auto-detection

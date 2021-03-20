@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import bluetooth
 import argparse
+import time
 from PIL import Image, ImageOps, ImageEnhance
 from tqdm import tqdm
 
@@ -10,7 +11,7 @@ parser.add_argument("BTMAC",help="BT MAC address of the Peripage A6")
 parser.add_argument("imagefile",help="Image file to be printed (JPG,PNG,TIF...)")
 parser.add_argument("-b", "--brightness", type=float, help="Adjust the brightness using a factor ")
 parser.add_argument("-c", "--contrast", type=float, help = "Enhance contrast using a factor")
-
+parser.add_argument("-nf","--nofeed", action="store_true", help="Do not feed extra paper after printing (use for seamless printing")
 args = parser.parse_args();
 
 host = args.BTMAC
@@ -69,12 +70,12 @@ def printString(outputString):
     sock.send(line)
 
 
-def printImage(filename):
-    # binaryFile = open (filename,"rb")
-
-
+def loadImageFromFileName(filename):
     # Load Image and process it
     img = Image.open(filename)
+    return img
+
+def printImage(img):
     img = img.convert("L")
 
     img_width = img.size[0]
@@ -114,7 +115,15 @@ def printImage(filename):
     for i in tqdm(range(0, len(image_bytes), chunksize)):
         chunk = image_bytes[i:i + chunksize]
         sock.send(chunk)
+        time.sleep(0.02)
+    if not args.nofeed:
+        print("Feeding...")
+        emptyLine=[0 for i in range(1,122)];
+        for i in range(1,35):
+            sock.send(bytes(emptyLine))
+            time.sleep(0.02)
     print("Printing complete")
+
 
 print("Connecting")
 sock.connect((host, 1))
@@ -126,4 +135,4 @@ print("Serial Number", getSerial())
 
 print("Resetting device")
 reset()
-printImage(imageFile)
+printImage(loadImageFromFileName(imageFile))
