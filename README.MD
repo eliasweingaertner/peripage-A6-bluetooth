@@ -28,8 +28,9 @@ Essentially, the script takes an input images, scales it to the printers natvie 
 This script requires the following dependencies:
 - Pybluez
 - Pillow
-- Argparse
+- argparse
 - tqdm
+- qrcode
 
 You can simply install all requirements using PIP:
 
