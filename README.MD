@@ -11,6 +11,13 @@ The script provided here was built based on an analysis of captured Bluetooth tr
 
 Essentially, the script takes an input images, scales it to the printers natvie X resolution of 384 pixels, and then sends it to the printer.
 
+## What is currently working?
+- Printing Images (JPG, PNG,...)
+- Direct printing of QR codes
+  
+- Manipulation of Brightness  / Contrast (via Image)
+- Toggle Paper feeding
+
 ## Prerequisites
 
 - Python 3 and PIP
@@ -37,20 +44,29 @@ elias@luna:~$ hcitool scan
 Scanning ...
 B5:5B:13:08:F6:22	PeriPage_F622
 elias@luna:~$ 
-```
-## Printing
+``` 
+## Printing Images
 With the image converted and the BT MAC known, printing is straightforward
 ```bash
-./ppa6-printImage.py [BT MAC ADDRESS] [IMAGE FILE]
+./ppa6-print.py -i [IMAGE FILE] [BT MAC ADDRESS]
 ``` 
 You can use all common raster image formats for printing (PNG, JPG, GIF...)
 
 *Example*
 ```bash
-./ppa6-printImage.py B5:5B:13:08:F6:22 image.jpg
+./ppa6-print.py -i image.jpg B5:5B:13:08:F6:22
 ``` 
 
-### Manipulating brightness and contrast for printing
+## Printing QR Codes
+For the sake of convenience, the script allows QR codes to be generated and printed directly in one go. Simply pass in in the content for the QR code using the `-qr`option.
+
+*Example*
+```bash
+./ppa6-print.py -qr "http://www.weingaertner.org" B5:5B:13:08:F6:22
+``` 
+
+
+## Manipulating brightness and contrast for printing
 In many cases, the print quality dramatically improves if the brightness or the contrast
 of the image is adjusted. This can be done using the `-b` and `-b` parameters.
 
@@ -58,16 +74,16 @@ of the image is adjusted. This can be done using the `-b` and `-b` parameters.
 The example reduces the contrast using a factor of 0.75 and increases the brightness using a factor of 1.5.
 
 ```bash
-./ppa6-printImage.py -c 0.75 -b 1.5 B5:5B:13:08:F6:22 image.jpg
+./ppa6-print.py -c 0.75 -b 1.5 -i image.jpg  B5:5B:13:08:F6:22
 ```
 
-###Disabling feeding
+### Disabling feeding
 The script feeds some extra paper after printing to ease cutting. This can be disabled using the `-nf` parameter.
 
 Example
 ```bash
-
-./ppa6-printImage.py -nf B5:5B:13:08:F6:22 image.jpg
+# no paper feeding
+./ppa6-print.py -nf- i image.jpg B5:5B:13:08:F6:22
 ```
 
 ## Status and future work
@@ -77,4 +93,3 @@ This script is a proof of concept. The goal was simply to make printing work. Th
 Todo:
 - Printer scanning & auto-detection
 - Text print
-

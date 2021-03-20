@@ -2,20 +2,33 @@
 import bluetooth
 import argparse
 import time
+import sys
 from PIL import Image, ImageOps, ImageEnhance
 from tqdm import tqdm
+import qrcode
 
 
 parser = argparse.ArgumentParser(description="Print an image to a Peripage A6 via Bluetooth")
 parser.add_argument("BTMAC",help="BT MAC address of the Peripage A6")
-parser.add_argument("imagefile",help="Image file to be printed (JPG,PNG,TIF...)")
+
+parser.add_argument("-i", "--imagefile",type=str, help="Image file to be printed (JPG,PNG,TIF...)")
+parser.add_argument("-qr","--qrcode",type=str, help="Content of the QR code to be printed")
 parser.add_argument("-b", "--brightness", type=float, help="Adjust the brightness using a factor ")
 parser.add_argument("-c", "--contrast", type=float, help = "Enhance contrast using a factor")
 parser.add_argument("-nf","--nofeed", action="store_true", help="Do not feed extra paper after printing (use for seamless printing")
 args = parser.parse_args();
 
 host = args.BTMAC
-imageFile = args.imagefile
+
+if (not args.imagefile) and (not args.qrcode):
+    print("ERROR: Either --imagefile or --qrcode have to be given")
+    parser.print_help()
+    sys.exit(1)
+
+if (args.imagefile) and (args.qrcode):
+    print("ERROR: Both --imagefile or -qrcode specified, but only one can be used")
+    parser.print_help()
+    sys.exit(1)
 
 sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 
@@ -122,6 +135,7 @@ def printImage(img):
         for i in range(1,35):
             sock.send(bytes(emptyLine))
             time.sleep(0.02)
+    sock.send(bytes.fromhex("1b4a4010fffe45"))
     print("Printing complete")
 
 
@@ -135,4 +149,11 @@ print("Serial Number", getSerial())
 
 print("Resetting device")
 reset()
-printImage(loadImageFromFileName(imageFile))
+
+if args.imagefile:
+    print("Printing image", args.imagefile)
+    printImage(loadImageFromFileName(args.imagefile))
+if args.qrcode:
+    print("Printing QR code with content:", args.qrcode)
+    printImage(qrcode.make(args.qrcode))
+
