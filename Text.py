@@ -81,7 +81,7 @@ class Text:
         if self.align == "left":
             xy = (self.margin, 0)
         elif self.align == "center":
-            xy = ((self.maxwidth - width) / 2,0)
+            xy = ((self.max_width - width) / 2,0)
         elif self.align == "right":
             xy = (self.max_width - width-self.margin, 0)
         
