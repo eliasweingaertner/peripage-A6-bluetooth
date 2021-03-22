@@ -16,7 +16,7 @@ class Text:
         self.stroke_width = stroke_width
         self.stroke_fill = stroke_fill
         
-        if self.fill in [0, 255] and self.stroke_fill in [0, 255] and self.stroke_width == 0:
+        if self.fill in [None, 0, 255] and self.stroke_fill in [None, 0, 255] and self.stroke_width == 0:
             self.contain_grey = False
         else:
              self.contain_grey = True   
@@ -39,7 +39,7 @@ class Text:
         if stroke_fill != None:
             self.stroke_fill = stroke_fill
             
-        if self.fill in [0, 255] and self.stroke_fill in [0, 255] and self.stroke_width == 0:
+        if self.fill in [None, 0, 255] and self.stroke_fill in [None, 0, 255] and self.stroke_width == 0:
             self.contain_grey = False
         else:
              self.contain_grey = True   
@@ -75,7 +75,7 @@ class Text:
         if self.contain_grey:
             img = Image.new('L', (self.max_width, height + self.spacing), ImageColor.getcolor("White", "L"))
         else:
-            img = Image.new('1', (self.maw_width, height + self.spacing), ImageColor.getcolor("White", "1"))
+            img = Image.new('1', (self.max_width, height + self.spacing), ImageColor.getcolor("White", "1"))
         draw = ImageDraw.Draw(img)
         
         if self.align == "left":
