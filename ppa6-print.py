@@ -14,6 +14,8 @@ parser.add_argument("BTMAC",help="BT MAC address of the Peripage A6")
 parser.add_argument("-i", "--imagefile",type=str, help="Image file to be printed (JPG,PNG,TIF...)")
 parser.add_argument("-qr","--qrcode",type=str, help="Content of the QR code to be printed")
 parser.add_argument("-t", "--text", type=str, help="Text to be printed")
+parser.add_argument("--font", type=str, default="verdana.ttf", help="A filename of a TrueType font. The file may also be searched in system directories")
+parser.add_argument("--size", type=int, default=24, help="Font size in points")
 parser.add_argument("-b", "--brightness", type=float, help="Adjust the brightness using a factor ")
 parser.add_argument("-c", "--contrast", type=float, help = "Enhance contrast using a factor")
 parser.add_argument("-nf","--nofeed", action="store_true", help="Do not feed extra paper after printing (use for seamless printing")
@@ -90,8 +92,7 @@ def loadImageFromFileName(filename):
     return img
 
 
-def generateImageFromString(s):
-    font = ImageFont.truetype("liberation-mono/LiberationMono-Regular.ttf", 24)
+def generateImageFromString(s, font):
     size = font.getsize_multiline(s)
     size_x = 384 if size[0] <= 384 else size[0]
     size_y = size[1]
@@ -171,4 +172,9 @@ if args.qrcode:
     printImage(qrcode.make(args.qrcode))
 if args.text:
     print("Printing text:", args.text)
-    printImage(generateImageFromString(args.text))
+    try:
+        font = ImageFont.truetype(args.font, args.size)
+    except OSError:
+        print("ERROR: Font file %r not found" % args.font)
+        sys.exit(1)
+    printImage(generateImageFromString(args.text, font))
