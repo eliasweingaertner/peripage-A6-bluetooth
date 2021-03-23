@@ -3,7 +3,7 @@ import bluetooth
 import argparse
 import time
 import sys
-from PIL import Image, ImageOps, ImageEnhance
+from PIL import Image, ImageOps, ImageEnhance, ImageFont, ImageDraw
 from tqdm import tqdm
 import qrcode
 
@@ -13,6 +13,9 @@ parser.add_argument("BTMAC",help="BT MAC address of the Peripage A6")
 
 parser.add_argument("-i", "--imagefile",type=str, help="Image file to be printed (JPG,PNG,TIF...)")
 parser.add_argument("-qr","--qrcode",type=str, help="Content of the QR code to be printed")
+parser.add_argument("-t", "--text", type=str, help="Text to be printed")
+parser.add_argument("--font", type=str, default="verdana.ttf", help="A filename of a TrueType font. The file may also be searched in system directories")
+parser.add_argument("--size", type=int, default=24, help="Font size in points")
 parser.add_argument("-b", "--brightness", type=float, help="Adjust the brightness using a factor ")
 parser.add_argument("-c", "--contrast", type=float, help = "Enhance contrast using a factor")
 parser.add_argument("-nf","--nofeed", action="store_true", help="Do not feed extra paper after printing (use for seamless printing")
@@ -20,13 +23,13 @@ args = parser.parse_args();
 
 host = args.BTMAC
 
-if (not args.imagefile) and (not args.qrcode):
-    print("ERROR: Either --imagefile or --qrcode have to be given")
+if (not args.imagefile) and (not args.qrcode) and (not args.text):
+    print("ERROR: --imagefile, --qrcode, or --text have to be given")
     parser.print_help()
     sys.exit(1)
 
-if (args.imagefile) and (args.qrcode):
-    print("ERROR: Both --imagefile or -qrcode specified, but only one can be used")
+if len(list(filter(None, map(bool, [args.imagefile, args.qrcode, args.text])))) > 1:
+    print("ERROR: Only --imagefile, --qrcode, or --text can be used")
     parser.print_help()
     sys.exit(1)
 
@@ -87,6 +90,17 @@ def loadImageFromFileName(filename):
     # Load Image and process it
     img = Image.open(filename)
     return img
+
+
+def generateImageFromString(s, font):
+    size = font.getsize_multiline(s)
+    size_x = 384 if size[0] <= 384 else size[0]
+    size_y = size[1]
+    img = Image.new("RGBA", size=(size_x, size_y), color="white")
+    draw = ImageDraw.Draw(img)
+    draw.text((0, 0), s, (0, 0, 0), font=font)
+    return img
+
 
 def printImage(img):
     img = img.convert("L")
@@ -156,4 +170,11 @@ if args.imagefile:
 if args.qrcode:
     print("Printing QR code with content:", args.qrcode)
     printImage(qrcode.make(args.qrcode))
-
+if args.text:
+    print("Printing text:", args.text)
+    try:
+        font = ImageFont.truetype(args.font, args.size)
+    except OSError:
+        print("ERROR: Font file %r not found" % args.font)
+        sys.exit(1)
+    printImage(generateImageFromString(args.text, font))
