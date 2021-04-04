@@ -6,12 +6,14 @@ import sys
 from PIL import Image, ImageOps, ImageEnhance
 from tqdm import tqdm
 import qrcode
-
+from cairosvg import svg2png
+from io import BytesIO
 
 parser = argparse.ArgumentParser(description="Print an image to a Peripage A6 via Bluetooth")
 parser.add_argument("BTMAC",help="BT MAC address of the Peripage A6")
 
 parser.add_argument("-i", "--imagefile",type=str, help="Image file to be printed (JPG,PNG,TIF...)")
+parser.add_argument("-s","--svg",type=str,help="SVG file to be printed (.svg / .svgz")
 parser.add_argument("-qr","--qrcode",type=str, help="Content of the QR code to be printed")
 parser.add_argument("-b", "--brightness", type=float, help="Adjust the brightness using a factor ")
 parser.add_argument("-c", "--contrast", type=float, help = "Enhance contrast using a factor")
@@ -19,19 +21,20 @@ parser.add_argument("-nf","--nofeed", action="store_true", help="Do not feed ext
 args = parser.parse_args();
 
 host = args.BTMAC
+printargs=0
 
-if (not args.imagefile) and (not args.qrcode):
-    print("ERROR: Either --imagefile or --qrcode have to be given")
-    parser.print_help()
-    sys.exit(1)
+if (args.imagefile):
+    printargs=printargs+1
+if (args.qrcode):
+    printargs=printargs+1
+if (args.svg):
+    printargs=printargs+1
 
-if (args.imagefile) and (args.qrcode):
-    print("ERROR: Both --imagefile or -qrcode specified, but only one can be used")
-    parser.print_help()
+if (printargs>1):
+    print("ERROR: Please specfiy only one printing mode out of --imagefile, --qr or --svg")
     sys.exit(1)
 
 sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-
 
 def getDeviceName():
     cmd = bytes.fromhex("10ff3011")
@@ -88,6 +91,10 @@ def loadImageFromFileName(filename):
     img = Image.open(filename)
     return img
 
+def loagImageFromSVG(filename):
+    png_data = svg2png(file_obj=open(filename,"rb"),background_color="#FFFFFF",output_width=384)
+    return Image.open(BytesIO(png_data))
+
 def printImage(img):
     img = img.convert("L")
 
@@ -107,9 +114,18 @@ def printImage(img):
 
     img = ImageOps.invert(img)
 
-    scale = 384 / float(img_width)
-    new_height = img_height * scale
-    img = img.resize((384, int(new_height)), Image.ANTIALIAS)
+    new_width = 384 #Peripage A6 image width
+    scale = new_width / float(img_width)
+    new_height = int(img_height * scale)
+
+    print ("Source image dimensions: ", img_width, img_height)
+    print ("Printing image dimensions:", new_width, new_height)
+
+    if (new_height>65535):
+        print ("Target image height is too large. Can't print this (yet)")
+        sys.exit(1)
+
+    img = img.resize((384, new_height), Image.ANTIALIAS)
 
     img = img.convert("1")
     # write chunks of 122 bytes to printer
@@ -117,7 +133,7 @@ def printImage(img):
     sock.send(cmd)
     chunksize = 122
     sock.send(bytes.fromhex("000000000000000000000000"))
-    height_bytes=(int(new_height)).to_bytes(2, byteorder="little")
+    height_bytes=(new_height).to_bytes(2, byteorder="little")
     cmd = bytes.fromhex("1d7630003000")+height_bytes
     sock.send(cmd)
 
@@ -157,3 +173,6 @@ if args.imagefile:
 if args.qrcode:
     print("Printing QR code with content:", args.qrcode)
     printImage(qrcode.make(args.qrcode))
+if (args.svg):
+    print("Printing SVG fike", args.svg)
+    printImage(loagImageFromSVG(args.svg))

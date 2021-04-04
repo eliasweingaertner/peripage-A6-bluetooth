@@ -1,6 +1,6 @@
 # Peripage A6 F622: Direct printing via Bluetooth 
 
-**The goal of this project is to openly faciliate printing on the Peripage A6 F622. We aim mostly at Linux here, but due to the use of Python this script should be portable to any environment supported by [PyBluez](https://github.com/pybluez/pybluez)**
+**This scripts enables printing on the Peripage A6 F622. We aim mostly at Linux here, but due to the use of Python this script should be portable to any environment supported by [PyBluez](https://github.com/pybluez/pybluez)**
 
 ## Introduction
 The Peripage A6 F622 is an inexpensive portable thermo printer. It provides both Bluetooth and USB connectivity. Unlike most other thermo printers it **does not** seem to support ESC/POS or any other standardized printer control language. 
@@ -13,8 +13,8 @@ Essentially, the script takes an input images, scales it to the printers natvie 
 
 ## What is currently working?
 - Printing Images (JPG, PNG,...)
+- Printing SVG files  
 - Direct printing of QR codes
-  
 - Manipulation of Brightness  / Contrast (via Image)
 - Toggle Paper feeding
 
@@ -47,7 +47,7 @@ B5:5B:13:08:F6:22	PeriPage_F622
 elias@luna:~$ 
 ``` 
 ## Printing Images
-With the image converted and the BT MAC known, printing is straightforward
+Once you know the BT MAC address, printing is straightforward
 ```bash
 ./ppa6-print.py -i [IMAGE FILE] [BT MAC ADDRESS]
 ``` 
@@ -58,6 +58,15 @@ You can use all common raster image formats for printing (PNG, JPG, GIF...)
 ./ppa6-print.py -i image.jpg B5:5B:13:08:F6:22
 ``` 
 
+## Printing SVG files
+Similarly, printing SVG files is straightforward. Internally, the image is first 
+rasterized using [cairosvg](https://cairosvg.org/). 
+
+*Example*
+```bash
+./ppa6-print.py --svg myvectorimage.svg B5:5B:13:08:F6:22
+``` 
+
 ## Printing QR Codes
 For the sake of convenience, the script allows QR codes to be generated and printed directly in one go. Simply pass in in the content for the QR code using the `-qr`option.
 
@@ -65,7 +74,6 @@ For the sake of convenience, the script allows QR codes to be generated and prin
 ```bash
 ./ppa6-print.py -qr "http://www.weingaertner.org" B5:5B:13:08:F6:22
 ``` 
-
 
 ## Manipulating brightness and contrast for printing
 In many cases, the print quality dramatically improves if the brightness or the contrast

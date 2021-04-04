@@ -2,3 +2,5 @@ PyBluez==0.23
 tqdm==4.59.0
 Pillow==8.1.2
 qrcode==6.1
+cairosvg==2.5.2
+
