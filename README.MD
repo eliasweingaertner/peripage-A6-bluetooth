@@ -11,6 +11,10 @@ The script provided here was built based on an analysis of captured Bluetooth tr
 
 Essentially, the script takes an input images, scales it to the printers natvie X resolution of 384 pixels, and then sends it to the printer.
 
+**Please note:** This script is mostly a proof of concept. Printing stuff works mostly fine. However, don't expect a
+polished Python3 library here. Kudos go out to [bitrate16](https://github.com/bitrate16) for turning this
+hack into a proper Python3 library, [ppa6](https://github.com/bitrate16/ppa6-python)!
+
 ## What is currently working?
 - Printing Images (JPG, PNG,...)
 - Printing SVG files  
@@ -26,11 +30,12 @@ Essentially, the script takes an input images, scales it to the printers natvie 
 ### Install dependencies
 
 This script requires the following dependencies:
-- Pybluez
-- Pillow
-- argparse
-- tqdm
-- qrcode
+- Pybluez (Bluetooth connectivity)
+- Pillow (Image handling)
+- argparse (Argument parser)
+- tqdm (Progress bar)
+- qrcode (qr code generation)
+- cairosvg (svg rendering)
 
 You can simply install all requirements using PIP:
 
