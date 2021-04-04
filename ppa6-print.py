@@ -117,7 +117,8 @@ def printImage(img):
     sock.send(cmd)
     chunksize = 122
     sock.send(bytes.fromhex("000000000000000000000000"))
-    cmd = bytes.fromhex("1d76300030008005")
+    height_bytes=(int(new_height)).to_bytes(2, byteorder="little")
+    cmd = bytes.fromhex("1d7630003000")+height_bytes
     sock.send(cmd)
 
     # send image to printer
@@ -156,4 +157,3 @@ if args.imagefile:
 if args.qrcode:
     print("Printing QR code with content:", args.qrcode)
     printImage(qrcode.make(args.qrcode))
-
